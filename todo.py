@@ -129,7 +129,29 @@ def Search_task(tasks):
         print("Task description not found!")
     finally:
         print("\nTask found!")
+
+def edit_task(tasks):
+    """Allows the user to edit task description"""
+    display_tasks(tasks)
+    
+    try:
+        task_num = int(input("Enter the number of the task to edit: "))
+        new_description = input("Enter the new task description: ").strip()
+        if new_description:
+
+            tasks[task_num -1]['description'] = new_description
+            tasks[task_num -1]['completed'] = False
+            save_tasks(tasks)
+            print(f"Task '{new_description}' changed.")
+        else:
+            print("Task description cannot be empty.")
+    except ValueError:
+        print("Please enter a valid number.")
+    finally:
+        display_tasks(tasks)
         
+def undo_task(tasks):
+    """Allows the user to undo delete"""
     
 # --- Main Application Logic ---
 
@@ -146,7 +168,9 @@ def main():
         print("5. Prioritize Task")
         print("6. Filter Task")
         print("7. Search Task")
-        print("8. Exit")
+        print("8. Edit Task")
+        print("9. Undo delete")
+        print("10. Exit")
         print("-------------------------")
 
         choice = input("Enter your choice: ")
@@ -166,6 +190,10 @@ def main():
         elif choice == '7':
             Search_task(tasks)
         elif choice == '8':
+            edit_task(tasks)
+        elif choice == '9':
+            undo_task(tasks)
+        elif choice == '10':
             print("Exiting To-Do List. Goodbye!")
             break
         else:
