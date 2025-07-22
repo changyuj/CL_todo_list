@@ -107,6 +107,29 @@ def prioritize_task(tasks):
     except ValueError:
         print("Please enter a valid number.")
     
+def filter_task(tasks):
+    """Allows the user to filter tasks by status (only incomplete tasks)."""
+    print(f"Displaying only incomplete tasks.\n")
+    for i, task in enumerate(tasks):
+        if not task['completed']:
+            print(f"{i + 1}. [ ] {task['description']}")
+    print("----------------------------\n")
+        
+def Search_task(tasks):
+    """Allows the user to search for tasks."""
+    
+    try:
+        searchDescription = input("Enter the task description to search: ").strip()
+        for i, task in enumerate(tasks):
+            if searchDescription in task["description"]:
+                status = "✓" if task['completed'] else " "
+                print(f"{i + 1}. [{status}] {task['description']}")
+    except Exception:
+        # A except that return unfound task
+        print("Task description not found!")
+    finally:
+        print("\nTask found!")
+        
     
 # --- Main Application Logic ---
 
@@ -121,7 +144,9 @@ def main():
         print("3. Mark Task as Complete")
         print("4. Delete Task")
         print("5. Prioritize Task")
-        print("6. Exit")
+        print("6. Filter Task")
+        print("7. Search Task")
+        print("8. Exit")
         print("-------------------------")
 
         choice = input("Enter your choice: ")
@@ -137,6 +162,10 @@ def main():
         elif choice == '5':
             prioritize_task(tasks)
         elif choice == '6':
+            filter_task(tasks)
+        elif choice == '7':
+            Search_task(tasks)
+        elif choice == '8':
             print("Exiting To-Do List. Goodbye!")
             break
         else:
