@@ -26,7 +26,24 @@ def load_tasks():
         # Handle empty or malformed JSON file
             print(f"Error reading {TASKS_FILE}. Starting with an empty task list.")
             return []
-
+        
+def load_trash():
+    """
+    Loads trash from the TRASH.
+    If the file doesn't exist, return an empty list.
+    """
+    if not os.path.exists(TRASH_FILE):
+        return []
+    with open(TASKS_FILE, 'r') as f:
+        try:
+            # Load existing trash; ensure it's a list
+            trash = json.load(f)
+            if not isinstance(trash, list):
+                return []
+            return tasks
+        except json.JSONDecodeError:
+            return []
+  
 def save_tasks(tasks):
     """Saves the current list of tasks to the TASKS_FILE."""
     with open(TASKS_FILE, 'w') as f:
@@ -72,7 +89,7 @@ def mark_task_complete(tasks):
     except ValueError:
         print("Please enter a valid number.")
 
-def delete_task(tasks):
+def delete_task(tasks, trash):
     """Allows the user to delete a task by its index."""
     display_tasks(tasks)
     if not tasks:
@@ -84,6 +101,8 @@ def delete_task(tasks):
             removed_task = tasks.pop(task_num - 1)
             save_tasks(tasks)
             print(f"Task '{removed_task['description']}' deleted.")
+            trash.append(removed_task)
+            save_tasks(trash)
         else:
             print("Invalid task number.")
     except ValueError:
@@ -150,15 +169,55 @@ def edit_task(tasks):
     finally:
         display_tasks(tasks)
         
-def undo_task(tasks):
-    """Allows the user to undo delete"""
+def undo_task(tasks, trash):
+    """Allows the user to undo 'mark task as complete', 'delete', 'add' tasks"""
+    if not tasks:
+        return
+
+    while True:
+        print("\n === Choose Task to undo ===")
+        print("1. Undo delete task")
+        print("2. Undo mark task as complete")
+        print("3. Exit undo task.")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            if trash:
+                print("\nRestoring last deleted task!")
+                removed_trash = trash.pop(0)
+                tasks.append(removed_trash)
+                save_tasks(tasks)
+                save_tasks(trash)
+                print(f"Task '{removed_trash['description']}' restored")
+            else:
+                print(f"\nThere are no task to restore!")
+        elif choice == '2':
+            display_tasks(tasks)
+            try:
+                task_num = int(input("Enter the number of the task to mark as incomplete: "))
+                if 1 <= task_num <= len(tasks):
+                    tasks[task_num - 1]['completed'] = False
+                    save_tasks(tasks)
+                    print(f"Task {task_num} marked as incomplete.")
+                else:
+                    print("Invalid task number.")
+            except ValueError:
+                print("Please enter a valid number.")
+        elif choice == '3':
+            print("Exiting Undo task.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
     
 # --- Main Application Logic ---
 
 def main():
     """Main function to run the To-Do List application."""
     tasks = load_tasks() # Load tasks at the start
-
+    trash = load_trash() # Load trash at the start
+    
     while True:
         print("\n--- To-Do List Menu ---")
         print("1. Veiw Tasks")
@@ -182,7 +241,7 @@ def main():
         elif choice == '3':
             mark_task_complete(tasks)
         elif choice == '4':
-            delete_task(tasks)
+            delete_task(task, trash)
         elif choice == '5':
             prioritize_task(tasks)
         elif choice == '6':
@@ -192,7 +251,7 @@ def main():
         elif choice == '8':
             edit_task(tasks)
         elif choice == '9':
-            undo_task(tasks)
+            undo_task(tasks, trash)
         elif choice == '10':
             print("Exiting To-Do List. Goodbye!")
             break
