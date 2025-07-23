@@ -4,6 +4,7 @@ import os
 # --- Constants ---
 # Define the filename where tasks will be stored
 TASKS_FILE = 'tasks.json'
+TRASH_FILE = 'trash.json'
 
 # --- Data Loading/Saving Functions ---
 
@@ -34,13 +35,13 @@ def load_trash():
     """
     if not os.path.exists(TRASH_FILE):
         return []
-    with open(TASKS_FILE, 'r') as f:
+    with open(TRASH_FILE, 'r') as f:
         try:
             # Load existing trash; ensure it's a list
             trash = json.load(f)
             if not isinstance(trash, list):
                 return []
-            return tasks
+            return trash
         except json.JSONDecodeError:
             return []
   
@@ -228,7 +229,7 @@ def main():
         print("6. Filter Task")
         print("7. Search Task")
         print("8. Edit Task")
-        print("9. Undo delete")
+        print("9. Undo Task")
         print("10. Exit")
         print("-------------------------")
 
@@ -241,7 +242,7 @@ def main():
         elif choice == '3':
             mark_task_complete(tasks)
         elif choice == '4':
-            delete_task(task, trash)
+            delete_task(tasks, trash)
         elif choice == '5':
             prioritize_task(tasks)
         elif choice == '6':
